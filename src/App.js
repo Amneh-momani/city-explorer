@@ -3,55 +3,86 @@ import axios from "axios";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
+
 import Button from "react-bootstrap/Button";
 
 export class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      locationData: {},
+      locationDisplay: "",
+      latitude: "",
+      longitude: "",
+      displayData: false,
+      errorShow: false,
+      errorWarning: "",
     };
   }
 
   submitForm = async (e) => {
     e.preventDefault();
     const location = e.target.CityName.value;
-    // zoom=${value}
-    const response = await axios.get(
-      `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_MY_KEY}&q=${location}&format=json`
-    );
-    // const cityMap = await axios.get(
-    //   `https://maps.locationiq.com/v3/staticmap?key=${
-    //     process.env.REACT_APP_MY_KEY
-    //   }&center=${(location.lat+location.lon)}&zoom=18`
-    // );
 
-    console.log("our axios response", response.data[0]);
+    try {
+      const response = await axios.get(
+        `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_MY_KEY}&q=${location}&format=json`
+      );
 
-    this.setState({
-      locationData: response.data[0],
-    });
+      console.log("our axios response", response.data[0]);
+
+      this.setState({
+        locationDisplay: response.data[0].display_name,
+        latitude: response.data[0].lat,
+        longitude: response.data[0].lon,
+        displayData: true,
+        errorShow: true,
+        mapShown: true,
+      });
+    } catch (fault) {
+      this.setState({
+        errorShow: true,
+        errorWarning: `${fault.response.status} ${fault.response.data.error}`,
+      });
+    }
   };
 
   render() {
     return (
-      <div>
-        <form onSubmit={this.submitForm}>
-          <label>City Name:</label>
-          <input
-            name="CityName"
+      <div class="main">
+        <Form onSubmit={this.submitForm}>
+        <Row className="align-items-center my-3">
+
+
+  <Form.Group className="mb-3" controlId="formBasicEmail">
+    <Form.Label>City Name:</Form.Label>
+    <Form.Control name="CityName"
             type="text"
-            placeholder="Enter your city name"
-          />
-          <input type="submit" value="Explore!" />
-        </form>
+            placeholder="Enter your city name" />
+    <Button type="submit" value="Explore!" class="btn btn-primary">Explore!</Button>
+  </Form.Group>
+  </Row>
+
+        </Form>
+
         <div>
           <h1>Location information</h1>
-          {this.state.locationData.display_name && (
-            <p>{this.state.locationData.display_name}</p>
-          )}
+          {this.state.locationDisplay && <p>{this.state.locationDisplay}</p>}
+          <div>
+            {this.state.mapShown && (
+              <p>
+                <img
+                  src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_MY_KEY}&center=${this.state.latitude},${this.state.longitude}`}
+              
+                  alt=""
+                />
+              </p>
+            )}
+          </div>
+          <div>
+            <p>{this.state.errorWarning}</p>
+          </div>
         </div>
-        {/* <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13526.838241227573!2d36.05671945!3d32.05005204999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x151b65a9288214cf%3A0x119057935f196a90!2z2LbYp9it2YrYqSDZhdmD2Kk!5e0!3m2!1sar!2sjo!4v1627874902269!5m2!1sar!2sjo" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe> */}
       </div>
     );
   }
