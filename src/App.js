@@ -17,6 +17,7 @@ export class App extends Component {
       displayData: false,
       errorShow: false,
       errorWarning: "",
+      weatherData:[]
     };
   }
 
@@ -29,12 +30,21 @@ export class App extends Component {
         `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_MY_KEY}&q=${location}&format=json`
       );
 
-      console.log("our axios response", response.data[0]);
+      const locationData = response.data[0];
+      const locationName = locationData.display_name.split(",")[0];
+
+      const weatherResponse = await axios.get(`${process.env.REACT_APP_BACKEND}/weather?searchQuery=${locationName}&lat=${locationData.lat}&lon=${locationData.lon}`
+      );
+
+      // console.log("our axios response", locationData);
 
       this.setState({
-        locationDisplay: response.data[0].display_name,
-        latitude: response.data[0].lat,
-        longitude: response.data[0].lon,
+        // locationData:locationData,
+        locationDisplay: locationName,
+        latitude: locationData.lat,
+        longitude: locationData.lon,
+        weatherData: weatherResponse.data,
+
         displayData: true,
         errorShow: true,
         mapShown: true,
@@ -51,18 +61,19 @@ export class App extends Component {
     return (
       <div class="main">
         <Form onSubmit={this.submitForm}>
-        <Row className="align-items-center my-3">
-
-
-  <Form.Group className="mb-3" controlId="formBasicEmail">
-    <Form.Label>City Name:</Form.Label>
-    <Form.Control name="CityName"
-            type="text"
-            placeholder="Enter your city name" />
-    <Button type="submit" value="Explore!" class="btn btn-primary">Explore!</Button>
-  </Form.Group>
-  </Row>
-
+          <Row className="align-items-center my-3">
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>City Name:</Form.Label>
+              <Form.Control
+                name="CityName"
+                type="text"
+                placeholder="Enter your city name"
+              />
+              <Button type="submit" value="Explore!" class="btn btn-primary">
+                Explore!
+              </Button>
+            </Form.Group>
+          </Row>
         </Form>
 
         <div>
@@ -73,7 +84,6 @@ export class App extends Component {
               <p>
                 <img
                   src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_MY_KEY}&center=${this.state.latitude},${this.state.longitude}`}
-              
                   alt=""
                 />
               </p>
@@ -81,6 +91,16 @@ export class App extends Component {
           </div>
           <div>
             <p>{this.state.errorWarning}</p>
+          </div>
+          <div>
+            {this.state.weatherData.map((weather) => {
+              return (
+                <div>
+                  <p>{weather.valid_date}</p>
+                  <p>{weather.description} </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
