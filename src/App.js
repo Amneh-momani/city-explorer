@@ -18,6 +18,7 @@ export class App extends Component {
       errorShow: false,
       errorWarning: "",
       weatherData: [],
+      moiveData:[],
     };
   }
 
@@ -25,7 +26,7 @@ export class App extends Component {
     e.preventDefault();
     const location = e.target.CityName.value;
 
-    try {
+    // try {
       const response = await axios.get(
         `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_MY_KEY}&q=${location}&format=json`
       );
@@ -33,8 +34,14 @@ export class App extends Component {
       const locationData = response.data[0];
       const locationName = locationData.display_name.split(",")[0];
 
-      const weatherResponse = await axios.get(
-        `${process.env.REACT_APP_BACKEND}/weather?searchQuery=${locationName}&lat=${locationData.lat}&lon=${locationData.lon}`
+      // const weatherResponse = await axios.get(
+      //   `${process.env.REACT_APP_BACKEND}/weather?searchQuery=${locationName}&lat=${locationData.lat}&lon=${locationData.lon}`
+      // );
+       const weatherResponse = await axios.get(
+        `${process.env.REACT_APP_BACKEND}/weather-bit?lat=${locationData.lat}&lon=${locationData.lon}`
+      );
+      const moiveResponse = await axios.get(
+        `${process.env.REACT_APP_BACKEND}/moive?api_key=${process.env.REACT_APP_MOIVE_KEY}&query=${locationName}`
       );
       this.setState({
         locationData: locationData,
@@ -42,17 +49,18 @@ export class App extends Component {
         latitude: locationData.lat,
         longitude: locationData.lon,
         weatherData: weatherResponse.data,
+        moiveData: moiveResponse.data,
 
         displayData: true,
         errorShow: true,
         mapShown: true,
       });
-    } catch (fault) {
-      this.setState({
-        errorShow: true,
-        errorWarning: `${fault.response.status} ${fault.response.data.error}`,
-      });
-    }
+    // } catch (fault) {
+    //   this.setState({
+    //     errorShow: true,
+    //     errorWarning: `${fault.response.status} ${fault.response.data.error}`,
+    //   });
+    // }
   };
 
   render() {
@@ -96,6 +104,21 @@ export class App extends Component {
                 <div>
                   <p>{weather.valid_date}</p>
                   <p>{weather.description} </p>
+                </div>
+              );
+            })}
+          </div>
+          <div>
+            {this.state.moiveData.map((moive) => {
+              return (
+                <div>
+    <p>{moive.title}</p>
+    <p>{moive.overview}</p>
+       <p>{moive.average_votes}</p>
+    <p>{moive.total_votes}</p>
+   <p>{moive.image_url}</p>
+   <p>{moive.popularity}</p>
+    <p>{moive.released_on}</p>
                 </div>
               );
             })}
