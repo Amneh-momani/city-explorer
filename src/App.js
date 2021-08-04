@@ -17,7 +17,7 @@ export class App extends Component {
       displayData: false,
       errorShow: false,
       errorWarning: "",
-      weatherData:[]
+      weatherData: [],
     };
   }
 
@@ -33,13 +33,11 @@ export class App extends Component {
       const locationData = response.data[0];
       const locationName = locationData.display_name.split(",")[0];
 
-      const weatherResponse = await axios.get(`${process.env.REACT_APP_BACKEND}/weather?searchQuery=${locationName}&lat=${locationData.lat}&lon=${locationData.lon}`
+      const weatherResponse = await axios.get(
+        `${process.env.REACT_APP_BACKEND}/weather?searchQuery=${locationName}&lat=${locationData.lat}&lon=${locationData.lon}`
       );
-
-      // console.log("our axios response", locationData);
-
       this.setState({
-        // locationData:locationData,
+        locationData: locationData,
         locationDisplay: locationName,
         latitude: locationData.lat,
         longitude: locationData.lon,
