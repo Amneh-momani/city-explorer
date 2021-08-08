@@ -116,7 +116,7 @@ export class App extends Component {
                     <p>{moive.overview}</p>
                     <p>{moive.average_votes}</p>
                     <p>{moive.total_votes}</p>
-                    <img  src={moive.image_url} />
+                    <img  src={moive.image_url} alt="moiveImg" />
                     <p>{moive.popularity}</p>
                     <p>{moive.released_on}</p>
                   </div>
